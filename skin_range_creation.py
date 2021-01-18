@@ -1,4 +1,5 @@
-import face_detection
+import face_detection as face
+import mua_search as mua
 
 # rgb, not bgr
 skin_ranges = [
@@ -17,11 +18,8 @@ range_terms = dict([
 	])
 
 
-def get_skin_range_int(rgb):	# argument: brg --> rgb
+def get_skin_range_int_search(rgb):	# argument: brg --> rgb
 	red, green, blue = (0, 1, 2)
-	# user_r = rgb[red]
-	# user_g = rgb[green]
-	# user_b = rgb[blue]
 	user_r, user_g, user_b = rgb
 	user_skin_range = -999
 
@@ -52,23 +50,30 @@ def get_tone_terms(skin_range_int):
 	else:
 		print("Error found -- could not match skintone")
 
-def get_yt_skin_avg(yt):
-	get_avg_color(yt)
+
+def get_yt_skin_avg_list(thumb_list):
+	yt_list = []
+	for thumb_url in thumb_list:
+		this_avg = face.get_avg_color(face.get_face(face.url_to_cv2(thumb_url)))[1]
+		yt_list.append(this_avg)
+	return yt_list
 
 
-def get_matched_results(user_tone, thumbnail_list):	# uses bgr format
+def get_matched_results(user_tone, yt_tone_list, vid_id_list):	# uses bgr format
 	blue, green, red = (0, 1, 2)
-	matched_results = []
-	for thumb in thumbnail_list:
+	matched_vid_id = []
+	index = 0
+	for thumb in yt_tone_list:
 		# arbitrary values, need to improve later
 		if ((user_tone[blue] - 10 <= thumb[blue] <= user_tone[blue] + 10) 
 			and (user_tone[green] - 10 <= thumb[green] <= user_tone[green] + 10) 
 			and (user_tone[blue] - 10 <= thumb[blue] <= user_tone[blue] + 10)):
 
-			matched_results.append(thumb)
+			matched_vid_id.append(vid_id_list[index])
 
-	return matched_results
+		index += 1
 
+	return matched_vid_id
 
 
 def check_rgb(user_rgb, curr_rgb_min, curr_rgb_max):
@@ -78,4 +83,11 @@ def check_rgb(user_rgb, curr_rgb_min, curr_rgb_max):
 
 
 def main():
-	print(get_tone_terms(get_skin_range_int((225, 172, 150))))
+	resp = mua.get_yt_search()
+	thumb = mua.get_thumbnails(resp)
+	vid = mua.get_vid_ids(resp)
+	print(get_yt_skin_avg_list(thumb))
+
+
+if __name__ == "__main__":
+	main()

@@ -24,6 +24,10 @@ def get_face(pixels):
 
     # perform face detection
     facebox = classifier.detectMultiScale(pixels)
+    print(type(facebox))
+    print(facebox)
+    print()
+
     x, y, width, height = facebox[0]
     crop_x, crop_y = x + width, y + height
 
@@ -33,6 +37,7 @@ def get_face(pixels):
     # crop to face
     crop_face = pixels[y:crop_y, x:crop_x]
     return crop_face    # numpy.ndarray
+
 
 # select a pixel from the face
 def get_avg_color(head_crop):
@@ -45,8 +50,11 @@ def get_avg_color(head_crop):
     skin_region_HSV = cv2.inRange(image_HSV, min_HSV, max_HSV)
     skin_HSV = cv2.bitwise_and(head_crop, head_crop, mask = skin_region_HSV)
 
+    #cv2.imshow('skin tone only', skin_HSV)
+    #cv2.waitKey(0)
+
     # convert back to rgb
-    skin_BRG = cv2.cvtColor(skin_HSV, cv2.COLOR_HSV2BRG)
+    skin_BRG = cv2.cvtColor(skin_HSV, cv2.COLOR_HSV2BGR)
 
     # calculate average skin tone
     pixel_count = 0
@@ -65,26 +73,28 @@ def get_avg_color(head_crop):
     avg_r = avg_r // pixel_count
     avg_color = (avg_r, avg_g, avg_b)       # switch from brg to rgb format
     avg_color_bgr = (avg_b, avg_g, avg_r)
-
+    print(avg_color)
     return (avg_color, avg_color_bgr)
 
 def url_to_cv2(url_str):
     resp = urllib.request.urlopen(url_str)
     url_img = np.asarray(bytearray(resp.read()), dtype="uint8")
     url_img = cv2.imdecode(url_img, cv2.IMREAD_COLOR)
-    return img
+    return url_img
 
 def read_from_upload(filename):
     uploaded_img = cv2.imread(filename)
     return uploaded_img
 
-# def main():
+def main():
 #     # # test
 #     # filename = 'TestImages/test_ryan.jpg'
-#     # # filename = 'TestImages/Passed/13.jpeg'
-#     # test_head_crop = get_face(filename)
-#     # # print(get_pixel(test_head_crop))
-#     # get_pixel(test_head_crop)
+    filename = 'TestImages/Passed/10.jpeg'
+    test_head_crop = get_face(read_from_upload(filename))
+    # cv2.imshow('test head crop', test_head_crop)
+    # cv2.waitKey(0)
+    get_avg_color(test_head_crop)
 
-# if __name__ == "__main__":
-#     main()
+
+if __name__ == "__main__":
+    main()
