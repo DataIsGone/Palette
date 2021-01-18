@@ -3,7 +3,7 @@ import skin_range_creation as tone
 
 from googleapiclient.discovery import build
 
-API_KEY = 'AIzaSyCh1n5cD3i3Qmtag-Mei5s2gCvj4b576qs'
+API_KEY = 'not for you'
 YT_IMG_URL_FRONT = "https://i.ytimg.com/vi/"
 YT_IMG_URL_BACK = "/hqdefault.jpg"
 
